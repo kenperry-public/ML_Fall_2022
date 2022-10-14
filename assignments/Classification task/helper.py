@@ -6,10 +6,8 @@ import matplotlib.pyplot as plt
 import os
 import h5py
 import pickle
-import tensorflow as tf
+
 from nose.tools import assert_equal
-from tensorflow.keras.models import load_model
-from tensorflow.keras.utils import to_categorical
 
 
 import json
@@ -66,18 +64,6 @@ class Helper():
       
       print("Model saved in directory {dir:s}; create an archive of this directory and submit with your assignment.".format(dir=model_path))
 
-  def loadModel(self, modelName):
-      model_path = self.modelPath(modelName)
-      
-      # Reload the model from the 2 files we saved
-      with open(os.path.join(model_path, 'config.json')) as json_file:
-          json_config = json_file.read()
-    
-      model = tf.keras.models.model_from_json(json_config)
-      model.compile(loss='categorical_crossentropy', metrics=['accuracy'])
-      model.load_weights(os.path.join(model_path, 'weights.h5'))
-      
-      return model
 
   def saveModelNonPortable(self, model, modelName): 
       model_path = self.modelPath(modelName)
@@ -151,56 +137,6 @@ class Helper():
 
     return data, labels
 
-
-
-
-  from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-  modelName = "Ships_in_satellite_images"
-  es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', min_delta=.01, patience=2, verbose=0, mode='auto', baseline=None, restore_best_weights=True)
-
-  callbacks = [ es_callback,
-                ModelCheckpoint(filepath=modelName + ".ckpt", monitor='accuracy', save_best_only=True)
-                ]   
-
-  max_epochs = 30
-
-  def train(self, model, X, y, model_name, epochs=max_epochs):
-    # Describe the model
-    model.summary()
-
-    # Compile the model
-    model.compile(loss='categorical_crossentropy', metrics=['accuracy'])
-
-    # Fix the validation set (for repeatability, not a great idea, in general)
-    X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.20, random_state=42)
-    
-    print("Train set size: ", X_train.shape[0], ", Validation set size: ", X_valid.shape[0])
-
-    history = model.fit(X_train, y_train, epochs=max_epochs, validation_data=(X_valid, y_valid), callbacks=callbacks)
-    fig, axs = plotTrain(history, model_name)
-
-    return history, fig, axs
-
-  def plotTrain(self, history, model_name="???"):
-    fig, axs = plt.subplots( 1, 2, figsize=(12, 5) )
-
-    # Plot loss
-    axs[0].plot(history.history['loss'])
-    axs[0].plot(history.history['val_loss'])
-    axs[0].set_title(model_name + " " + 'model loss')
-    axs[0].set_ylabel('loss')
-    axs[0].set_xlabel('epoch')
-    axs[0].legend(['train', 'validation'], loc='upper left')
-   
-    # Plot accuracy
-    axs[1].plot(history.history['accuracy'])
-    axs[1].plot(history.history['val_accuracy'])
-    axs[1].set_title(model_name + " " +'model accuracy')
-    axs[1].set_ylabel('accuracy')
-    axs[1].set_xlabel('epoch')
-    axs[1].legend(['train', 'validation'], loc='upper left')
-
-    return fig, axs
   def model_interpretation(self, clf):
     dim = round( clf.coef_[0].shape[-1] **0.5)
 
@@ -216,3 +152,5 @@ class Helper():
     _ = ax.set_yticks(())
 
     _= fig.suptitle('Parameters')
+
+    
