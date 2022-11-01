@@ -91,7 +91,7 @@ class NN_Helper():
             _ = ax.set_xlabel("$y_{(l-1)} \cdot W_{l,j}$", fontsize=14)
             #_ = ax.set_xlabel("x")
             _ = ax.set_ylabel("activation")
-            _ = ax.set_title("Step function creation")
+            _ = ax.set_title("Binary Switch creation")
 
         _ = fig.tight_layout()
         return fig, ax
